@@ -1,5 +1,58 @@
+%createPointSeg Create PointSeg for semantic segmentation using deep learning.
+%
+%   pointseg is a convolutional neural network for semantic pointcloud
+%   segmentation. It uses a pixelClassificationLayer to predict the
+%   categorical label for every point in an input projected image.
+%
+%   Use pointsegLayers to create the network architecture for PointSeg. This
+%   network must be trained using trainNetwork from Deep Learning Toolbox
+%   before it can be used for semantic segmentation.
+%
+%   lgraph = pointsegLayers(imageSize, numClasses) returns U-Net layers
+%   configured using the following inputs:
+%
+%   Inputs
+%   ------
+%   inputSize    - size of the network input image specified as a vector
+%                  [H W] , where H and W are the image height and width,
+%                  and C is the number of spherical image channels.
+%
+%   classNames   - names of classes the network should be configured to
+%                  classify.
+%
+%   classWeights - weights of classes the network to balance the classes
+%
+% Notes
+% -----
+%
+%
+%   Example 1 - Create PointSeg with custom Input.
+%   ------------------------------------------------------------
+%   % Create pointSeg layers with an .
+%   imageSize = [480 640 5];
+%   classNames = [
+%   "car"
+%   "cyclist"
+%   ];
+%   classWeights = [1 1];
+%   lgraph = pointsegLayers(imageSize, classNames, classWeights)
+%
+%   % Display network.
+%   figure
+%   plot(lgraph)
+%
+
+% References
+% ----------
+%
+% [1] 
+
+%   Copyright 2019 The MathWorks, Inc.
+
+function lgraph = createLiPoSeg(inputSize, classNames)
+numClasses = size(classNames,1);
 lgraph = layerGraph();
-tempLayers = imageInputLayer([64 1024 5],"Name","input");
+tempLayers = imageInputLayer(inputSize,"Name","input");
 lgraph = addLayers(lgraph,tempLayers);
 
 tempLayers = [
@@ -370,7 +423,7 @@ lgraph = addLayers(lgraph,tempLayers);
 tempLayers = [
     additionLayer(2,"Name","fuse_fire_deconv4_concatconv_skip_relu")
     dropoutLayer(0.5,"Name","dropout")
-    convolution2dLayer([3 3],3,"Name","convlast_conv","Padding","same")
+    convolution2dLayer([3 3],numClasses,"Name","convlast_conv","Padding","same")
     reluLayer("Name","convlast_relu")
     softmaxLayer("Name","softmax")
     pixelClassificationLayer("Name","pixellabels")];
@@ -466,5 +519,4 @@ lgraph = connectLayers(lgraph,"fire_deconv4_deconv_relu","fire_deconv4_expand1x1
 lgraph = connectLayers(lgraph,"fire_deconv4_expand1x1_relu","fire_deconv4_concat/in1");
 lgraph = connectLayers(lgraph,"fire_deconv4_expand3x3_relu","fire_deconv4_concat/in2");
 lgraph = connectLayers(lgraph,"fire_deconv4_concat","fuse_fire_deconv4_concatconv_skip_relu/in1");
-
-plot(lgraph);
+end

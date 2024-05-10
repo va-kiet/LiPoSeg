@@ -44,7 +44,7 @@ classWeights = median(imageFreq) ./ imageFreq;
 
 inputSize = [64 1024 5];
 
-lgraph = createPointSeg(inputSize, classNames, classWeights);
+lgraph = createLiPoSeg(inputSize, classNames, classWeights);
 
 analyzeNetwork(lgraph)
 
@@ -71,7 +71,7 @@ doTraining = true;
 
 if doTraining    
     [net, info] = trainNetwork(trainingData, lgraph, options);
-else
-    pretrainedNetwork = load('trainedPointSegNet.mat');
-    net = pretrainedNetwork.net;
+% else
+%     pretrainedNetwork = load('trainedPointSegNet.mat');
+%     net = pretrainedNetwork.net;
 end
