@@ -1,16 +1,4 @@
-%createPointSeg Create PointSeg for semantic segmentation using deep learning.
-%
-%   pointseg is a convolutional neural network for semantic pointcloud
-%   segmentation. It uses a pixelClassificationLayer to predict the
-%   categorical label for every point in an input projected image.
-%
-%   Use pointsegLayers to create the network architecture for PointSeg. This
-%   network must be trained using trainNetwork from Deep Learning Toolbox
-%   before it can be used for semantic segmentation.
-%
-%   lgraph = pointsegLayers(imageSize, numClasses) returns U-Net layers
-%   configured using the following inputs:
-%
+
 %   Inputs
 %   ------
 %   inputSize    - size of the network input image specified as a vector
@@ -26,7 +14,7 @@
 % -----
 %
 %
-%   Example 1 - Create PointSeg with custom Input.
+%   Example 1 - Create LiPoSeg with custom Input.
 %   ------------------------------------------------------------
 %   % Create pointSeg layers with an .
 %   imageSize = [480 640 5];
@@ -35,21 +23,15 @@
 %   "cyclist"
 %   ];
 %   classWeights = [1 1];
-%   lgraph = pointsegLayers(imageSize, classNames, classWeights)
+%   lgraph = createLiPoSeg(imageSize, classNames, classWeights)
 %
 %   % Display network.
 %   figure
 %   plot(lgraph)
 %
 
-% References
-% ----------
-%
-% [1] 
 
-%   Copyright 2019 The MathWorks, Inc.
-
-function lgraph = createLiPoSeg(inputSize, classNames)
+function lgraph = createLiPoSeg(inputSize, classNames, classWeights)
 numClasses = size(classNames,1);
 lgraph = layerGraph();
 tempLayers = imageInputLayer(inputSize,"Name","input");
@@ -426,7 +408,7 @@ tempLayers = [
     convolution2dLayer([3 3],numClasses,"Name","convlast_conv","Padding","same")
     reluLayer("Name","convlast_relu")
     softmaxLayer("Name","softmax")
-    pixelClassificationLayer("Name","pixellabels")];
+    pixelClassificationLayer('Name', 'pixellabels','Classes', classNames, 'ClassWeights', classWeights)];
 lgraph = addLayers(lgraph,tempLayers);
 
 % clean up helper variable
